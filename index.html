@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Private Jet Guide</title>
+  <style>
+    :root {
+      --night: #05070d;
+      --ink: #10131a;
+      --text: #f7f8fb;
+      --muted: rgba(247, 248, 251, 0.68);
+      --glass: rgba(255, 255, 255, 0.12);
+      --glass-strong: rgba(255, 255, 255, 0.2);
+      --line: rgba(255, 255, 255, 0.22);
+      --gold: #e8c778;
+      --blue: #87b8ff;
+      --shadow: 0 30px 90px rgba(0, 0, 0, 0.36);
+      --radius: 34px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(135,184,255,0.34), transparent 30rem),
+        radial-gradient(circle at 88% 8%, rgba(232,199,120,0.24), transparent 28rem),
+        linear-gradient(180deg, #03050b 0%, #09111f 35%, #eef4fb 64%, #f7f1e7 100%);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(115deg, transparent 0 42%, rgba(255,255,255,0.12) 48%, transparent 54% 100%);
+      mix-blend-mode: screen;
+      opacity: 0.45;
+      animation: sheen 9s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes sheen { from { transform: translateX(-70%); } to { transform: translateX(70%); } }
+    @keyframes fly { 0% { transform: translate3d(-24vw, 18px, 0) rotate(-6deg); } 50% { transform: translate3d(0, -8px, 0) rotate(-3deg); } 100% { transform: translate3d(24vw, 10px, 0) rotate(-5deg); } }
+    @keyframes float { 50% { transform: translateY(-12px); } }
+    @keyframes pulse { 50% { opacity: 0.45; transform: scale(1.08); } }
+
+    a { color: inherit; text-decoration: none; }
+    p { margin: 0; color: var(--muted); }
+    h1, h2, h3 { margin: 0; letter-spacing: -0.055em; line-height: 1.02; }
+    h1 { font-size: clamp(3.8rem, 10vw, 9.8rem); max-width: 1040px; }
+    h2 { font-size: clamp(2.25rem, 5.8vw, 6.3rem); }
+    h3 { font-size: clamp(1.3rem, 2vw, 2rem); }
+
+    .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; position: relative; z-index: 1; }
+    .glass {
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+      backdrop-filter: blur(28px) saturate(1.35);
+      -webkit-backdrop-filter: blur(28px) saturate(1.35);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.24);
+    }
+
+    header {
+      position: fixed;
+      top: 14px;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .nav {
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 0 16px 0 22px;
+      border-radius: 999px;
+      pointer-events: auto;
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 760; }
+    .brand-dot { width: 12px; height: 12px; border-radius: 999px; background: var(--gold); box-shadow: 0 0 28px var(--gold); }
+    .links { display: flex; gap: 18px; color: rgba(255,255,255,0.74); font-size: 0.92rem; }
+    .links a:hover { color: white; }
+    .lang-toggle { border: 0; border-radius: 999px; padding: 10px 14px; color: #0b1020; font-weight: 760; background: rgba(255,255,255,0.86); cursor: pointer; }
+
+    section { position: relative; z-index: 1; }
+    .hero { min-height: 100vh; display: grid; place-items: center; padding: 118px 0 82px; overflow: hidden; }
+    .hero-copy { text-align: center; display: grid; gap: 24px; justify-items: center; }
+    .eyebrow { color: rgba(255,255,255,0.78); text-transform: uppercase; letter-spacing: 0.22em; font-size: 0.76rem; font-weight: 800; }
+    .lead { max-width: 730px; font-size: clamp(1.05rem, 2vw, 1.36rem); }
+    .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 6px; }
+    .button { min-height: 50px; display: inline-flex; align-items: center; border-radius: 999px; padding: 0 21px; font-weight: 760; }
+    .button.primary { background: white; color: #111827; }
+    .button.secondary { color: white; }
+
+    .flying-jet-wrap { height: min(33vw, 310px); width: min(980px, 96vw); position: relative; margin: 10px auto 0; animation: fly 8s ease-in-out infinite alternate; filter: drop-shadow(0 36px 45px rgba(0,0,0,0.32)); }
+    .g700-jet { position: absolute; inset: 0; }
+    .g700-body { position: absolute; left: 8%; top: 43%; width: 82%; height: 14%; border-radius: 999px 52% 52% 999px; background: linear-gradient(180deg, #fff 0%, #dfe7f0 44%, #9aa9bd 100%); }
+    .g700-nose { position: absolute; right: 5.4%; top: 40%; width: 12%; height: 20%; border-radius: 50%; background: linear-gradient(180deg, #fff, #cfd9e6); }
+    .g700-tail { position: absolute; left: 8%; top: 20%; width: 16%; height: 33%; background: linear-gradient(135deg, #fff, #c8d3df); clip-path: polygon(0 100%, 36% 0, 75% 88%); }
+    .g700-wing-main { position: absolute; left: 42%; top: 48%; width: 27%; height: 28%; background: linear-gradient(135deg, #ffffff, #c7d3df 48%, #7e8fa5); clip-path: polygon(0 18%, 100% 0, 72% 100%, 20% 70%); }
+    .g700-wing-back { position: absolute; left: 22%; top: 47%; width: 13%; height: 16%; background: linear-gradient(135deg, #f8fbff, #aebbc9); clip-path: polygon(0 35%, 100% 0, 76% 100%, 18% 70%); }
+    .g700-window { position: absolute; right: 18%; top: 45%; width: 1.25%; height: 8%; border-radius: 999px; background: #142236; box-shadow: -34px 1px 0 #142236, -68px 2px 0 #142236, -102px 3px 0 #142236, -136px 4px 0 #142236, -170px 5px 0 #142236; }
+    .g700-stripe { position: absolute; left: 24%; right: 12%; top: 55%; height: 2%; border-radius: 999px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .75; }
+    .contrail { position: absolute; right: 74%; top: 50%; width: 54%; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.68)); filter: blur(.5px); }
+
+    .scroll-story { height: 410vh; color: #111827; }
+    .story-sticky { position: sticky; top: 0; height: 100vh; display: grid; align-items: center; overflow: hidden; }
+    .story-bg { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(247,250,255,0.08), rgba(255,255,255,0.86)); }
+    .story-stage { display: grid; grid-template-columns: 0.94fr 1.06fr; gap: 44px; align-items: center; }
+    .story-copy { color: #111827; padding: 30px; border-radius: var(--radius); background: rgba(255,255,255,0.56); border: 1px solid rgba(255,255,255,0.76); backdrop-filter: blur(26px); box-shadow: 0 26px 80px rgba(47, 67, 98, 0.16); }
+    .story-copy p { color: rgba(17,24,39,0.66); font-size: 1.1rem; margin-top: 16px; }
+    .story-copy .eyebrow { color: rgba(17,24,39,0.54); }
+    .stage-window { min-height: 560px; border-radius: 44px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.78); background: linear-gradient(135deg, rgba(255,255,255,0.72), rgba(255,255,255,0.28)); box-shadow: 0 34px 110px rgba(47,67,98,0.22), inset 0 1px 0 white; backdrop-filter: blur(22px); }
+
+    .morph-shell { position: absolute; inset: 6%; border-radius: 999px 44% 44% 999px; background: linear-gradient(115deg, #fff, #d8e2ee 38%, #9dadc2 86%); clip-path: polygon(0 38%, 78% 31%, 100% 43%, 83% 58%, 8% 64%); transition: transform .4s; }
+    .cockpit-glass { position: absolute; right: 12%; top: 41%; width: 18%; height: 10%; border-radius: 80% 40% 40% 45%; background: linear-gradient(135deg, rgba(16,32,52,.9), rgba(110,172,234,.55)); box-shadow: inset 0 0 24px rgba(255,255,255,.2); }
+    .section-line { position: absolute; left: 12%; right: 15%; top: 52%; height: 3px; background: linear-gradient(90deg, transparent, rgba(232,199,120,.75), transparent); }
+    .interior-track { position: absolute; inset: 0; display: flex; width: 400%; animation: cabinPan 18s ease-in-out infinite; }
+    @keyframes cabinPan { 0%,18%{transform:translateX(0)} 27%,43%{transform:translateX(-25%)} 52%,68%{transform:translateX(-50%)} 77%,100%{transform:translateX(-75%)} }
+    .cabin-scene { width: 25%; padding: 52px; display: grid; align-content: end; gap: 22px; background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(237,229,215,0.72)); }
+    .cabin-scene h3 { color: #121826; }
+    .cabin-scene p { color: rgba(17,24,39,0.62); }
+    .fixture { min-height: 270px; border-radius: 28px; position: relative; background: linear-gradient(135deg, rgba(255,255,255,.76), rgba(255,255,255,.28)); border: 1px solid rgba(255,255,255,.8); box-shadow: inset 0 1px 0 white, 0 24px 60px rgba(91,70,44,.12); overflow: hidden; }
+    .fixture::after { content: ""; position: absolute; inset: 14px; border-radius: 22px; border: 1px solid rgba(17,24,39,.08); }
+    .storage::before { content: ""; position: absolute; left: 12%; top: 16%; width: 76%; height: 24%; border-radius: 18px; background: rgba(17,24,39,.12); box-shadow: 0 72px 0 rgba(17,24,39,.08), 0 144px 0 rgba(17,24,39,.08); }
+    .cabin::before { content: ""; position: absolute; left: 12%; bottom: 16%; width: 28%; height: 34%; border-radius: 30px 30px 12px 12px; background: #cab07a; box-shadow: 220px 0 0 #cab07a; }
+    .cabin::after { content: ""; position: absolute; left: 30%; top: 18%; width: 40%; height: 18%; border-radius: 999px; background: rgba(135,184,255,.42); border: 10px solid rgba(255,255,255,.65); }
+    .bedroom::before { content: ""; position: absolute; left: 14%; bottom: 14%; width: 72%; height: 34%; border-radius: 26px; background: linear-gradient(135deg, #fff, #d8c9a9); box-shadow: 0 -48px 0 rgba(17,24,39,.08); }
+    .lavatory::before { content: ""; position: absolute; left: 18%; top: 16%; width: 26%; height: 64%; border-radius: 22px; background: rgba(17,24,39,.1); box-shadow: 210px 88px 0 -34px rgba(232,199,120,.52); }
+
+    .content { padding: 110px 0; color: #111827; background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.72)); }
+    .content .eyebrow { color: rgba(17,24,39,0.48); }
+    .content p, .content li, .content td { color: rgba(17,24,39,0.66); }
+    .section-head { display: grid; gap: 16px; max-width: 850px; margin-bottom: 30px; }
+    .grid { display: grid; gap: 20px; }
+    .cards-3 { grid-template-columns: repeat(3, 1fr); }
+    .cards-2 { grid-template-columns: repeat(2, 1fr); }
+    .card { border-radius: 30px; padding: 28px; background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.76); box-shadow: 0 20px 70px rgba(47,67,98,0.12); backdrop-filter: blur(22px); }
+    ul { margin: 16px 0 0; padding-left: 20px; }
+    li { margin: 8px 0; }
+    .type-line { width: 100%; height: 80px; position: relative; margin-bottom: 16px; }
+    .type-line span { position: absolute; left: 0; top: 38px; height: 12px; border-radius: 999px; background: linear-gradient(90deg, #fff, #9dadc2); box-shadow: 0 14px 25px rgba(47,67,98,.15); }
+    .type-line span::before { content:""; position:absolute; left:42%; top:-20px; width:80px; height:42px; clip-path:polygon(0 46%,100% 0,72% 100%,18% 70%); background: var(--gold); }
+    .light { width: 58%; } .midsize { width: 73%; } .heavy { width: 92%; }
+    .models { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+    .pill { padding: 12px 16px; border-radius: 999px; background: rgba(255,255,255,0.72); border: 1px solid rgba(255,255,255,0.85); color: #111827; }
+    .table-wrap { overflow-x: auto; border-radius: 28px; background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.76); }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { text-align: left; padding: 18px 20px; border-bottom: 1px solid rgba(17,24,39,0.08); }
+    th { color: #111827; background: rgba(255,255,255,0.45); }
+    details { border-radius: 22px; padding: 19px 22px; background: rgba(255,255,255,0.62); border: 1px solid rgba(255,255,255,0.82); }
+    details + details { margin-top: 12px; }
+    summary { cursor: pointer; font-weight: 760; }
+    details p { margin-top: 10px; }
+    footer { padding: 44px 0; color: rgba(17,24,39,0.58); background: rgba(255,255,255,0.72); }
+
+    @media (max-width: 960px) {
+      .links { display: none; }
+      .story-stage, .cards-3, .cards-2 { grid-template-columns: 1fr; }
+      .story-sticky { align-items: start; padding-top: 100px; overflow: visible; }
+      .scroll-story { height: auto; padding: 80px 0; }
+      .stage-window { min-height: 520px; }
+      .content { padding: 80px 0; }
+    }
+
+    @media (max-width: 620px) {
+      .container { width: min(100% - 28px, 1180px); }
+      .nav { height: 56px; padding-left: 16px; }
+      .brand { font-size: .94rem; }
+      .hero { padding-top: 96px; }
+      .flying-jet-wrap { width: 120vw; height: 210px; }
+      .story-copy, .card { padding: 22px; border-radius: 24px; }
+      .stage-window { min-height: 470px; border-radius: 30px; }
+      .cabin-scene { padding: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="container nav glass" aria-label="Primary navigation">
+      <a class="brand" href="#top"><span class="brand-dot" aria-hidden="true"></span><span data-i18n="brand">Private Jet Guide</span></a>
+      <div class="links">
+        <a href="#g700" data-i18n="navExperience">Experience</a>
+        <a href="#types" data-i18n="navTypes">Types</a>
+        <a href="#costs" data-i18n="navCosts">Costs</a>
+        <a href="#safety" data-i18n="navSafety">Safety</a>
+        <a href="#faq" data-i18n="navFaq">FAQ</a>
+      </div>
+      <button class="lang-toggle" id="languageToggle" type="button" aria-label="Switch language">中文</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-copy">
+        <div class="eyebrow" data-i18n="heroEyebrow">Gulfstream G700 inspired concept</div>
+        <h1 data-i18n="heroTitle">Private aviation, with liquid-glass elegance.</h1>
+        <p class="lead" data-i18n="heroText">A premium one-page guide that follows a long-range business jet from the sky to the cockpit, storage, cabin, bedroom, and lavatory experience.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#g700" data-i18n="beginTour">Begin the tour</a>
+          <a class="button secondary glass" href="#comparison" data-i18n="compareJets">Compare jets</a>
+        </div>
+        <div class="flying-jet-wrap" aria-label="Animated CSS private jet flying across the top of the site">
+          <div class="contrail"></div>
+          <div class="g700-jet" aria-hidden="true">
+            <div class="g700-tail"></div><div class="g700-wing-back"></div><div class="g700-wing-main"></div><div class="g700-body"></div><div class="g700-nose"></div><div class="g700-window"></div><div class="g700-stripe"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="g700" class="scroll-story" aria-label="G700-inspired scroll experience">
+      <div class="story-sticky">
+        <div class="story-bg"></div>
+        <div class="container story-stage">
+          <div class="story-copy">
+            <div class="eyebrow" data-i18n="tourEyebrow">Smooth scroll narrative</div>
+            <h2 data-i18n="tourTitle">From exterior silhouette to a quiet private suite.</h2>
+            <p data-i18n="tourText">Inspired by the Gulfstream G700 class: a stretched fuselage, refined cockpit transition, generous storage, lounge-style cabin, rest area, and private lavatory are presented with CSS-built shapes and liquid glass panels.</p>
+          </div>
+          <div class="stage-window">
+            <div class="morph-shell" aria-hidden="true"></div>
+            <div class="cockpit-glass" aria-hidden="true"></div>
+            <div class="section-line" aria-hidden="true"></div>
+            <div class="interior-track">
+              <article class="cabin-scene">
+                <div class="fixture storage"></div>
+                <h3 data-i18n="storageTitle">Storage gallery</h3>
+                <p data-i18n="storageText">A forward service and baggage zone keeps the cabin calm, uncluttered, and ready for long-range missions.</p>
+              </article>
+              <article class="cabin-scene">
+                <div class="fixture cabin"></div>
+                <h3 data-i18n="cabinTitle">Club cabin</h3>
+                <p data-i18n="cabinText">Wide seating, oval windows, and soft ambient surfaces create the premium lounge feeling expected from flagship business aviation.</p>
+              </article>
+              <article class="cabin-scene">
+                <div class="fixture bedroom"></div>
+                <h3 data-i18n="bedTitle">Private bedroom</h3>
+                <p data-i18n="bedText">A quiet rear suite concept supports overnight flying, rest, and privacy between continents.</p>
+              </article>
+              <article class="cabin-scene">
+                <div class="fixture lavatory"></div>
+                <h3 data-i18n="lavTitle">Lavatory suite</h3>
+                <p data-i18n="lavText">A refined lavatory area completes the onboard journey with practical comfort and discreet materials.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="definition" class="content">
+      <div class="container grid cards-2">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="sectionOne">Section 01</div>
+          <h2 data-i18n="whatTitle">What is a private jet?</h2>
+          <p data-i18n="whatText">A private jet is a business aircraft used for non-airline travel. It can be owned, leased, shared, or chartered for individual schedules and direct airport access.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="privateAviationTitle">Private aviation in practice</h3>
+          <p data-i18n="privateAviationText">Travelers usually choose a jet based on passenger count, route distance, runway length, baggage needs, onboard comfort, and operating budget.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="types" class="content">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="sectionTwo">Section 02</div>
+          <h2 data-i18n="typesTitle">Types of private jets</h2>
+          <p data-i18n="typesText">Jet categories are commonly grouped by cabin size, range, performance, and operating cost.</p>
+        </div>
+        <div class="grid cards-3">
+          <article class="card"><div class="type-line"><span class="light"></span></div><h3 data-i18n="lightTitle">Light Jet</h3><p data-i18n="lightText">Efficient for short trips, smaller groups, and regional airports.</p><ul><li data-i18n="lightOne">Often 4–8 passengers</li><li data-i18n="lightTwo">Best for short to medium routes</li></ul></article>
+          <article class="card"><div class="type-line"><span class="midsize"></span></div><h3 data-i18n="midsizeTitle">Midsize Jet</h3><p data-i18n="midsizeText">A balanced option with more cabin space, range, and baggage capacity.</p><ul><li data-i18n="midsizeOne">Often 6–9 passengers</li><li data-i18n="midsizeTwo">Good for coast-to-coast missions</li></ul></article>
+          <article class="card"><div class="type-line"><span class="heavy"></span></div><h3 data-i18n="heavyTitle">Heavy Jet</h3><p data-i18n="heavyText">Built for longer flights, larger teams, premium cabins, and international travel.</p><ul><li data-i18n="heavyOne">Often 10+ passengers</li><li data-i18n="heavyTwo">Long range and full-service cabins</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="models" class="content">
+      <div class="container grid cards-2">
+        <div>
+          <div class="eyebrow" data-i18n="sectionThree">Section 03</div>
+          <h2 data-i18n="modelsTitle">Popular aircraft models</h2>
+          <p data-i18n="modelsText">Well-known private aircraft families span entry-level jets through ultra-long-range flagships.</p>
+          <div class="models"><span class="pill">Gulfstream G700</span><span class="pill">Gulfstream G650ER</span><span class="pill">Dassault Falcon 8X</span><span class="pill">Bombardier Global 7500</span><span class="pill">Challenger 3500</span><span class="pill">Embraer Phenom 300E</span></div>
+        </div>
+        <div class="card"><div class="eyebrow" data-i18n="sectionFour">Section 04</div><h2 data-i18n="usesTitle">Common uses</h2><ul><li data-i18n="useOne">Executive travel and multi-city business schedules</li><li data-i18n="useTwo">Family vacations and remote destination access</li><li data-i18n="useThree">Medical, humanitarian, sports, and entertainment logistics</li><li data-i18n="useFour">Time-sensitive cargo or specialist team transport</li></ul></div>
+      </div>
+    </section>
+
+    <section id="advantages" class="content">
+      <div class="container">
+        <div class="section-head"><div class="eyebrow" data-i18n="sectionFive">Section 05</div><h2 data-i18n="prosConsTitle">Advantages and disadvantages</h2></div>
+        <div class="grid cards-2">
+          <div class="card"><h3 data-i18n="advantagesTitle">Advantages</h3><ul><li data-i18n="advOne">Flexible departure times and direct routing</li><li data-i18n="advTwo">Access to more airports than scheduled airlines</li><li data-i18n="advThree">Private cabins for productivity and discretion</li></ul></div>
+          <div class="card"><h3 data-i18n="disadvantagesTitle">Disadvantages</h3><ul><li data-i18n="disOne">High charter, ownership, fuel, crew, and maintenance costs</li><li data-i18n="disTwo">Weather, airport slots, and regulations still apply</li><li data-i18n="disThree">Environmental impact can be significant per passenger</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="costs" class="content">
+      <div class="container">
+        <div class="section-head"><div class="eyebrow" data-i18n="sectionSix">Section 06</div><h2 data-i18n="costsTitle">Estimated costs</h2><p data-i18n="costsText">Actual pricing varies by aircraft, route, positioning, crew, airport fees, fuel, taxes, catering, and market availability.</p></div>
+        <div class="grid cards-3"><div class="card"><h3>$3k–$6k/hr</h3><p data-i18n="costLight">Light jet charter estimate</p></div><div class="card"><h3>$5k–$9k/hr</h3><p data-i18n="costMid">Midsize jet charter estimate</p></div><div class="card"><h3>$9k–$18k+/hr</h3><p data-i18n="costHeavy">Heavy jet charter estimate</p></div></div>
+      </div>
+    </section>
+
+    <section id="comparison" class="content">
+      <div class="container">
+        <div class="section-head"><h2 data-i18n="comparisonTitle">Comparison table</h2><p data-i18n="comparisonText">Use this simplified table as a starting point, not a quote or operating specification.</p></div>
+        <div class="table-wrap"><table><thead><tr><th data-i18n="tableType">Type</th><th data-i18n="tableSeats">Typical seats</th><th data-i18n="tableRange">Typical range</th><th data-i18n="tableBest">Best for</th><th data-i18n="tableCost">Relative cost</th></tr></thead><tbody><tr><td data-i18n="lightTitle">Light Jet</td><td>4–8</td><td data-i18n="rangeLight">Short to medium</td><td data-i18n="bestLight">Regional business trips</td><td data-i18n="costLow">Lower</td></tr><tr><td data-i18n="midsizeTitle">Midsize Jet</td><td>6–9</td><td data-i18n="rangeMid">Medium to long</td><td data-i18n="bestMid">Longer domestic routes</td><td data-i18n="costMedium">Medium</td></tr><tr><td data-i18n="heavyTitle">Heavy Jet</td><td>10+</td><td data-i18n="rangeHeavy">Long to ultra-long</td><td data-i18n="bestHeavy">International travel</td><td data-i18n="costHigh">Higher</td></tr></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="safety" class="content">
+      <div class="container grid cards-2">
+        <div class="section-head"><div class="eyebrow" data-i18n="sectionSeven">Section 07</div><h2 data-i18n="safetyTitle">Safety and legal notes</h2><p data-i18n="safetyText">Private aviation is regulated. Operators, pilots, maintenance providers, and aircraft must meet applicable aviation authority requirements.</p></div>
+        <div class="card"><ul><li data-i18n="safeOne">Verify operator certification, insurance, and safety ratings.</li><li data-i18n="safeTwo">Confirm passport, visa, customs, pet, and luggage rules before departure.</li><li data-i18n="safeThree">Follow crew instructions, security procedures, and hazardous goods restrictions.</li><li data-i18n="safeFour">For legal or tax decisions, consult qualified aviation professionals.</li></ul></div>
+      </div>
+    </section>
+
+    <section id="faq" class="content">
+      <div class="container">
+        <div class="section-head"><div class="eyebrow" data-i18n="faqEyebrow">FAQ</div><h2 data-i18n="faqTitle">Frequently asked questions</h2></div>
+        <details><summary data-i18n="qOne">Is chartering better than buying?</summary><p data-i18n="aOne">Chartering is usually more flexible for occasional flyers. Ownership can make sense for high annual usage and specific control needs.</p></details>
+        <details><summary data-i18n="qTwo">Can private jets use small airports?</summary><p data-i18n="aTwo">Many can, depending on runway length, aircraft performance, weather, and local airport rules.</p></details>
+        <details><summary data-i18n="qThree">Are private jets always faster?</summary><p data-i18n="aThree">The aircraft may not cruise much faster than airlines, but private travel can save time through direct routing and reduced ground delays.</p></details>
+        <details><summary data-i18n="qFour">Do prices include everything?</summary><p data-i18n="aFour">Not always. Ask whether repositioning, taxes, landing fees, de-icing, catering, and overnight crew expenses are included.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="container">© 2026 <span data-i18n="brand">Private Jet Guide</span>. <span data-i18n="footerText">Educational concept only; not aviation, legal, tax, or safety advice.</span></div></footer>
+
+  <script>
+    const translations = {
+      en: {
+        brand:'Private Jet Guide', navExperience:'Experience', navTypes:'Types', navCosts:'Costs', navSafety:'Safety', navFaq:'FAQ', heroEyebrow:'Gulfstream G700 inspired concept', heroTitle:'Private aviation, with liquid-glass elegance.', heroText:'A premium one-page guide that follows a long-range business jet from the sky to the cockpit, storage, cabin, bedroom, and lavatory experience.', beginTour:'Begin the tour', compareJets:'Compare jets', tourEyebrow:'Smooth scroll narrative', tourTitle:'From exterior silhouette to a quiet private suite.', tourText:'Inspired by the Gulfstream G700 class: a stretched fuselage, refined cockpit transition, generous storage, lounge-style cabin, rest area, and private lavatory are presented with CSS-built shapes and liquid glass panels.', storageTitle:'Storage gallery', storageText:'A forward service and baggage zone keeps the cabin calm, uncluttered, and ready for long-range missions.', cabinTitle:'Club cabin', cabinText:'Wide seating, oval windows, and soft ambient surfaces create the premium lounge feeling expected from flagship business aviation.', bedTitle:'Private bedroom', bedText:'A quiet rear suite concept supports overnight flying, rest, and privacy between continents.', lavTitle:'Lavatory suite', lavText:'A refined lavatory area completes the onboard journey with practical comfort and discreet materials.', sectionOne:'Section 01', whatTitle:'What is a private jet?', whatText:'A private jet is a business aircraft used for non-airline travel. It can be owned, leased, shared, or chartered for individual schedules and direct airport access.', privateAviationTitle:'Private aviation in practice', privateAviationText:'Travelers usually choose a jet based on passenger count, route distance, runway length, baggage needs, onboard comfort, and operating budget.', sectionTwo:'Section 02', typesTitle:'Types of private jets', typesText:'Jet categories are commonly grouped by cabin size, range, performance, and operating cost.', lightTitle:'Light Jet', lightText:'Efficient for short trips, smaller groups, and regional airports.', lightOne:'Often 4–8 passengers', lightTwo:'Best for short to medium routes', midsizeTitle:'Midsize Jet', midsizeText:'A balanced option with more cabin space, range, and baggage capacity.', midsizeOne:'Often 6–9 passengers', midsizeTwo:'Good for coast-to-coast missions', heavyTitle:'Heavy Jet', heavyText:'Built for longer flights, larger teams, premium cabins, and international travel.', heavyOne:'Often 10+ passengers', heavyTwo:'Long range and full-service cabins', sectionThree:'Section 03', modelsTitle:'Popular aircraft models', modelsText:'Well-known private aircraft families span entry-level jets through ultra-long-range flagships.', sectionFour:'Section 04', usesTitle:'Common uses', useOne:'Executive travel and multi-city business schedules', useTwo:'Family vacations and remote destination access', useThree:'Medical, humanitarian, sports, and entertainment logistics', useFour:'Time-sensitive cargo or specialist team transport', sectionFive:'Section 05', prosConsTitle:'Advantages and disadvantages', advantagesTitle:'Advantages', advOne:'Flexible departure times and direct routing', advTwo:'Access to more airports than scheduled airlines', advThree:'Private cabins for productivity and discretion', disadvantagesTitle:'Disadvantages', disOne:'High charter, ownership, fuel, crew, and maintenance costs', disTwo:'Weather, airport slots, and regulations still apply', disThree:'Environmental impact can be significant per passenger', sectionSix:'Section 06', costsTitle:'Estimated costs', costsText:'Actual pricing varies by aircraft, route, positioning, crew, airport fees, fuel, taxes, catering, and market availability.', costLight:'Light jet charter estimate', costMid:'Midsize jet charter estimate', costHeavy:'Heavy jet charter estimate', comparisonTitle:'Comparison table', comparisonText:'Use this simplified table as a starting point, not a quote or operating specification.', tableType:'Type', tableSeats:'Typical seats', tableRange:'Typical range', tableBest:'Best for', tableCost:'Relative cost', rangeLight:'Short to medium', bestLight:'Regional business trips', costLow:'Lower', rangeMid:'Medium to long', bestMid:'Longer domestic routes', costMedium:'Medium', rangeHeavy:'Long to ultra-long', bestHeavy:'International travel', costHigh:'Higher', sectionSeven:'Section 07', safetyTitle:'Safety and legal notes', safetyText:'Private aviation is regulated. Operators, pilots, maintenance providers, and aircraft must meet applicable aviation authority requirements.', safeOne:'Verify operator certification, insurance, and safety ratings.', safeTwo:'Confirm passport, visa, customs, pet, and luggage rules before departure.', safeThree:'Follow crew instructions, security procedures, and hazardous goods restrictions.', safeFour:'For legal or tax decisions, consult qualified aviation professionals.', faqEyebrow:'FAQ', faqTitle:'Frequently asked questions', qOne:'Is chartering better than buying?', aOne:'Chartering is usually more flexible for occasional flyers. Ownership can make sense for high annual usage and specific control needs.', qTwo:'Can private jets use small airports?', aTwo:'Many can, depending on runway length, aircraft performance, weather, and local airport rules.', qThree:'Are private jets always faster?', aThree:'The aircraft may not cruise much faster than airlines, but private travel can save time through direct routing and reduced ground delays.', qFour:'Do prices include everything?', aFour:'Not always. Ask whether repositioning, taxes, landing fees, de-icing, catering, and overnight crew expenses are included.', footerText:'Educational concept only; not aviation, legal, tax, or safety advice.'
+      },
+      zh: {
+        brand:'私人飞机指南', navExperience:'体验', navTypes:'类型', navCosts:'费用', navSafety:'安全', navFaq:'问答', heroEyebrow:'以湾流 G700 为灵感的概念体验', heroTitle:'液态玻璃质感的私人航空体验。', heroText:'一个高级感单页指南：从天空中飞行的远程公务机，到驾驶舱、储物区、客舱、卧室与洗手间的连续体验。', beginTour:'开始体验', compareJets:'对比机型', tourEyebrow:'平滑滚动叙事', tourTitle:'从机身外形，过渡到静谧的私人套间。', tourText:'以湾流 G700 级别为灵感：修长机身、驾驶舱过渡、充足储物、会客客舱、休息区和私人洗手间，都用 CSS 形状与液态玻璃面板呈现。', storageTitle:'储物柜', storageText:'前部服务与行李区域让客舱保持安静整洁，也更适合远程飞行任务。', cabinTitle:'会客客舱', cabinText:'宽大座椅、椭圆窗和柔和表面，营造旗舰公务机应有的高级休息室氛围。', bedTitle:'私人卧室', bedText:'后部安静套间概念支持跨洲夜航、休息与私密性。', lavTitle:'洗手间套间', lavText:'精致洗手间区域以实用舒适和低调材质完成整个机上旅程。', sectionOne:'第 01 部分', whatTitle:'什么是私人飞机？', whatText:'私人飞机是用于非航空公司定期航班旅行的商务航空器，可通过购买、租赁、共享或包机方式使用，以满足个性化时间表和直达机场需求。', privateAviationTitle:'私人航空的实际应用', privateAviationText:'旅客通常会根据乘客人数、航程、跑道长度、行李需求、客舱舒适度和运营预算来选择飞机。', sectionTwo:'第 02 部分', typesTitle:'私人飞机类型', typesText:'喷气机通常按客舱大小、航程、性能和运营成本分类。', lightTitle:'轻型喷气机', lightText:'适合短途、小团队和区域机场，效率较高。', lightOne:'通常搭载 4–8 名乘客', lightTwo:'适合短至中程航线', midsizeTitle:'中型喷气机', midsizeText:'在客舱空间、航程和行李容量之间取得平衡。', midsizeOne:'通常搭载 6–9 名乘客', midsizeTwo:'适合跨区域或长距离国内任务', heavyTitle:'重型喷气机', heavyText:'面向长途飞行、大型团队、高端客舱和国际旅行。', heavyOne:'通常搭载 10 名以上乘客', heavyTwo:'长航程与完整服务客舱', sectionThree:'第 03 部分', modelsTitle:'热门飞机型号', modelsText:'知名私人飞机系列覆盖入门级喷气机到超远程旗舰机型。', sectionFour:'第 04 部分', usesTitle:'常见用途', useOne:'高管出行和多城市商务行程', useTwo:'家庭度假与偏远目的地通达', useThree:'医疗、人道、体育和娱乐后勤', useFour:'时效货物或专业团队运输', sectionFive:'第 05 部分', prosConsTitle:'优势与劣势', advantagesTitle:'优势', advOne:'起飞时间灵活，航线更直接', advTwo:'可使用比定期航班更多的机场', advThree:'私密客舱便于工作和保密', disadvantagesTitle:'劣势', disOne:'包机、拥有、燃油、机组和维护成本较高', disTwo:'仍受天气、机场时刻和法规限制', disThree:'按乘客计算的环境影响可能较大', sectionSix:'第 06 部分', costsTitle:'费用估算', costsText:'实际价格取决于机型、航线、调机、机组、机场费用、燃油、税费、餐饮和市场供应。', costLight:'轻型喷气机包机估算', costMid:'中型喷气机包机估算', costHeavy:'重型喷气机包机估算', comparisonTitle:'对比表', comparisonText:'此简化表仅作入门参考，并非报价或运营规格。', tableType:'类型', tableSeats:'常见座位', tableRange:'常见航程', tableBest:'适合用途', tableCost:'相对成本', rangeLight:'短至中程', bestLight:'区域商务出行', costLow:'较低', rangeMid:'中至长程', bestMid:'较长国内航线', costMedium:'中等', rangeHeavy:'长至超远程', bestHeavy:'国际旅行', costHigh:'较高', sectionSeven:'第 07 部分', safetyTitle:'安全与法律提示', safetyText:'私人航空受到监管。运营商、飞行员、维修机构和飞机必须符合适用航空主管机构的要求。', safeOne:'核实运营商资质、保险和安全评级。', safeTwo:'出发前确认护照、签证、海关、宠物和行李规则。', safeThree:'遵守机组指示、安检流程和危险品限制。', safeFour:'涉及法律或税务决策时，请咨询合格航空专业人士。', faqEyebrow:'常见问题', faqTitle:'常见问题', qOne:'包机比购买更好吗？', aOne:'对偶尔飞行者而言，包机通常更灵活。若年飞行量很高且需要特定控制权，拥有飞机可能更合理。', qTwo:'私人飞机能使用小机场吗？', aTwo:'许多机型可以，但取决于跑道长度、飞机性能、天气和当地机场规则。', qThree:'私人飞机总是更快吗？', aThree:'巡航速度未必比民航快很多，但私人飞行可通过直飞和减少地面等待节省时间。', qFour:'价格包含所有费用吗？', aFour:'不一定。应确认是否包含调机、税费、降落费、除冰、餐饮和机组过夜费用。', footerText:'仅供教育概念参考；不构成航空、法律、税务或安全建议。'
+      }
+    };
+
+    const toggle = document.getElementById('languageToggle');
+    let currentLanguage = 'en';
+    function setLanguage(language) {
+      currentLanguage = language;
+      document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
+      document.querySelectorAll('[data-i18n]').forEach((element) => {
+        const key = element.dataset.i18n;
+        if (translations[language][key]) element.textContent = translations[language][key];
+      });
+      toggle.textContent = language === 'en' ? '中文' : 'English';
+    }
+    toggle.addEventListener('click', () => setLanguage(currentLanguage === 'en' ? 'zh' : 'en'));
+
+    const story = document.querySelector('.scroll-story');
+    const shell = document.querySelector('.morph-shell');
+    const cockpit = document.querySelector('.cockpit-glass');
+    const line = document.querySelector('.section-line');
+    const track = document.querySelector('.interior-track');
+    function updateStory() {
+      if (!story) return;
+      const rect = story.getBoundingClientRect();
+      const max = rect.height - window.innerHeight;
+      const progress = Math.min(1, Math.max(0, -rect.top / max));
+      const scale = 1 + progress * 1.2;
+      const x = progress * -26;
+      shell.style.transform = `translateX(${x}%) scale(${scale})`;
+      shell.style.opacity = String(Math.max(0.12, 1 - progress * 1.18));
+      cockpit.style.transform = `translateX(${-progress * 38}%) scale(${1 + progress * 1.7})`;
+      cockpit.style.opacity = String(Math.max(0.08, 1 - progress * 1.25));
+      line.style.opacity = String(Math.max(0, 1 - progress * 1.5));
+      track.style.opacity = String(Math.min(1, Math.max(0, (progress - 0.18) * 2.8)));
+      track.style.transform = `translateX(${-75 * Math.min(1, Math.max(0, (progress - 0.22) / 0.72))}%)`;
+      track.style.animationPlayState = progress > 0.22 ? 'paused' : 'running';
+    }
+    updateStory();
+    window.addEventListener('scroll', updateStory, { passive: true });
+    window.addEventListener('resize', updateStory);
+  </script>
+</body>
+</html>
