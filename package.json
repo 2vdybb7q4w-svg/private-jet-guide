@@ -1,0 +1,1 @@
+{"name":"then-now","version":"1.0.0","type":"module","private":true,"scripts":{"test":"node --test","start":"python3 -m http.server 4173"}}
